@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarklet Installer</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; line-height: 1.6; max-width: 800px; margin: 0 auto; }
+        .bookmarklet-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: move; /* Indicates it's draggable */
+        }
+        .bookmarklet-button:hover { background-color: #0056b3; }
+        .instructions { background: #f4f4f4; padding: 20px; border-radius: 8px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>QA Form Bookmarklet Setup</h1>
+    
+    <div class="instructions">
+        <h2>How to Install</h2>
+        <ol>
+            <li>Make sure your browser's <strong>Bookmarks Bar</strong> is visible (Ctrl+Shift+B usually toggles it).</li>
+            <li>Click and drag the blue button below up to your Bookmarks Bar.</li>
+            <li>Go to any website (like Google or Wikipedia).</li>
+            <li>Click the "QA Hello World" bookmark you just created.</li>
+        </ol>
+    </div>
+
+    <br>
+
+    <!-- This href contains the JavaScript code that runs when clicked -->
+    <a class="bookmarklet-button" href="javascript:(function(){if(document.getElementById('my-floating-modal')){alert('Already open!');return;}const d=document.createElement('div');d.id='my-floating-modal';Object.assign(d.style,{position:'fixed',bottom:'20px',right:'20px',width:'300px',padding:'20px',backgroundColor:'white',boxShadow:'0 4px 12px rgba(0,0,0,0.15)',zIndex:'10000',fontFamily:'sans-serif',borderRadius:'8px',border:'1px solid #ccc'});d.innerHTML='<h3 style=\'margin-top:0\'>Hello World</h3><p>I am a floating modal. Click anywhere else on the page!</p><button style=\'padding:5px 10px;cursor:pointer\' onclick=\'this.parentNode.remove()\'>Close</button>';document.body.appendChild(d);})();">
+        QA Hello World
+    </a>
+
+</body>
+</html>
