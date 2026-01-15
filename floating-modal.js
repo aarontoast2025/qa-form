@@ -24,6 +24,8 @@
     modal.style.zIndex = '10000'; // Ensure it is on top
     modal.style.fontFamily = 'Arial, sans-serif';
     modal.style.border = '1px solid #ccc';
+    modal.style.color = '#333333'; // Force dark text color
+    modal.style.textAlign = 'left'; // Force left align
     
     // 4. Add content
     const title = document.createElement('h3');
