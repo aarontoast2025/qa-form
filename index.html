@@ -3,54 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookmarklet Installer</title>
+    <title>Bookmarklet Installer v2</title>
     <style>
-        body { font-family: sans-serif; padding: 40px; line-height: 1.6; max-width: 800px; margin: 0 auto; background-color: #f9f9f9; color: #333; }
-        h1 { color: #2c3e50; }
+        body { font-family: -apple-system, system-ui, sans-serif; padding: 40px; line-height: 1.6; max-width: 800px; margin: 0 auto; background-color: #f0f2f5; color: #1c1e21; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; margin-top: 0; }
         .bookmarklet-button {
-            display: inline-block;
-            background-color: #28a745;
+            display: inline-flex;
+            align-items: center;
+            background-color: #1a73e8;
             color: white;
-            padding: 15px 25px;
+            padding: 12px 24px;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            cursor: move; /* Indicates it's draggable */
-            font-size: 1.1em;
+            border-radius: 24px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(26,115,232,0.4);
+            cursor: move;
+            transition: transform 0.1s, box-shadow 0.1s;
         }
-        .bookmarklet-button:hover { background-color: #218838; text-decoration: none; color: white; }
-        .instructions { background: white; padding: 25px; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .note { background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9em; border: 1px solid #ffeeba; }
+        .bookmarklet-button:hover { background-color: #1557b0; box-shadow: 0 4px 12px rgba(26,115,232,0.5); }
+        .bookmarklet-button:active { transform: scale(0.98); }
+        .steps { margin: 20px 0; padding-left: 20px; }
+        .steps li { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>QA Form Tool</h1>
-    
-    <div class="instructions">
-        <h2>Installation</h2>
-        <p>To install this tool, simply drag the green button below to your browser's <strong>Bookmarks Bar</strong>.</p>
+    <div class="card">
+        <h1>QA Helper Tool v2</h1>
+        <p>New features: <strong>Draggable window</strong> and <strong>Dark Mode safe</strong> (isolated styles).</p>
         
-        <!-- 
-             We are embedding the code directly into the href. 
-             This is the "Universal" version that works on all sites.
-        -->
-        <div style="text-align: center; margin: 30px 0;">
-            <a class="bookmarklet-button" href="javascript:(function(){if(document.getElementById('my-floating-modal')){alert('Modal is already open!');return;}const modal=document.createElement('div');modal.id='my-floating-modal';modal.style.position='fixed';modal.style.bottom='20px';modal.style.right='20px';modal.style.width='300px';modal.style.padding='20px';modal.style.backgroundColor='white';modal.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';modal.style.borderRadius='8px';modal.style.zIndex='10000';modal.style.fontFamily='Arial, sans-serif';modal.style.border='1px solid #ccc';modal.style.color='#333';modal.style.textAlign='left';const title=document.createElement('h3');title.innerText='Hello World';title.style.marginTop='0';title.style.color='#000';modal.appendChild(title);const text=document.createElement('p');text.innerText='This is your floating modal. You can still interact with the page behind me!';modal.appendChild(text);const closeBtn=document.createElement('button');closeBtn.innerText='Close';closeBtn.style.marginTop='10px';closeBtn.style.padding='5px 10px';closeBtn.style.cursor='pointer';closeBtn.style.color='#000';closeBtn.onclick=function(){modal.remove();};modal.appendChild(closeBtn);document.body.appendChild(modal);})();">
-                QA Hello World
-            </a>
-        </div>
-
-        <h3>How to use</h3>
-        <ol>
-            <li>Go to any website (e.g., Google, your company site, etc.).</li>
-            <li>Click the <strong>QA Hello World</strong> bookmark you just created.</li>
-            <li>The floating window should appear in the bottom right corner.</li>
+        <h3>Installation</h3>
+        <ol class="steps">
+            <li>Delete your old "QA Hello World" bookmark.</li>
+            <li>Drag the button below to your Bookmarks Bar.</li>
         </ol>
 
-        <div class="note">
-            <strong>Note:</strong> Since this version is self-contained, if you ever update the code in the future, you will need to come back to this page and re-drag the button to update your bookmark.
+        <div style="text-align: center; margin: 40px 0;">
+            <!-- 
+               UPDATED CODE:
+               Minified version of the Shadow DOM + Drag Logic.
+            -->
+            <a class="bookmarklet-button" href="javascript:(function(){const ID='qa-form-shadow-host';if(document.getElementById(ID)){alert('Already open!');return;}const host=document.createElement('div');host.id=ID;document.body.appendChild(host);const shadow=host.attachShadow({mode:'open'});const style=document.createElement('style');style.textContent=':host{all:initial;z-index:999999}.modal{position:fixed;bottom:20px;right:20px;width:300px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.2);border-radius:8px;font-family:sans-serif;color:#333;border:1px solid #ccc;display:flex;flex-direction:column}.header{background:#f5f5f5;padding:10px 15px;cursor:move;border-bottom:1px solid #ddd;font-weight:bold;display:flex;justify-content:space-between;user-select:none}.body{padding:15px}.footer{padding:10px 15px;border-top:1px solid #eee;text-align:right}button{background:#fff;border:1px solid #ccc;padding:5px 12px;cursor:pointer;border-radius:4px;margin-left:5px}button.primary{background:#1a73e8;color:#fff;border:none}';shadow.appendChild(style);const modal=document.createElement('div');modal.className='modal';modal.innerHTML='<div class=\'header\'><span>QA Helper</span><span style=\'cursor:pointer\' id=\'close\'>&times;</span></div><div class=\'body\'>Drag me around!<br>I look the same on every site.</div><div class=\'footer\'><button id=\'cancel\'>Cancel</button><button class=\'primary\' onclick=\'alert(&quot;Action!&quot;)\''>Action</button></div>';shadow.appendChild(modal);const close=()=>host.remove();modal.querySelector('#close').onclick=close;modal.querySelector('#cancel').onclick=close;let isDown=false,offset=[0,0];const head=modal.querySelector('.header');head.addEventListener('mousedown',e=>{isDown=true;offset=[modal.offsetLeft-e.clientX,modal.offsetTop-e.clientY];});document.addEventListener('mouseup',()=>isDown=false);document.addEventListener('mousemove',e=>{if(isDown){e.preventDefault();modal.style.left=(e.clientX+offset[0])+'px';modal.style.top=(e.clientY+offset[1])+'px';modal.style.bottom='auto';modal.style.right='auto';}});})();">
+                QA Helper v2
+            </a>
         </div>
+        
+        <p><small>Works on GitHub, Google, Dark Mode sites, etc.</small></p>
     </div>
 </body>
 </html>
