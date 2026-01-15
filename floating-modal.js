@@ -28,7 +28,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 300px;
+            width: 320px;
             background: #fff;
             color: #333;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
@@ -52,12 +52,36 @@
             font-weight: 600;
             color: #202124;
         }
-        .body { padding: 16px; color: #3c4043; }
+        .body { padding: 16px; color: #3c4043; max-height: 400px; overflow-y: auto; }
         .footer {
             padding: 12px 16px;
             border-top: 1px solid #eee;
             text-align: right;
             background: #fff;
+        }
+        .expandable {
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .expandable-header {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dadce0;
+        }
+        .expandable-content {
+            padding: 12px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
         }
         button {
             background: #fff;
@@ -67,12 +91,26 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            margin-left: 8px;
             font-weight: 500;
         }
         button:hover { background: #f8f9fa; border-color: #dadce0; }
         button.primary { background: #1a73e8; color: #fff; border: none; }
         button.primary:hover { background: #1557b0; }
+        button.active-yes { background: #e6f4ea; color: #137333; border-color: #ceead6; }
+        button.active-no { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        
+        textarea {
+            width: 100%;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 80px;
+            outline: none;
+        }
+        textarea:focus { border-color: #1a73e8; }
+
         .close-btn {
             cursor: pointer;
             font-size: 20px;
@@ -93,7 +131,7 @@
     const header = document.createElement('div');
     header.className = 'header';
     const title = document.createElement('span');
-    title.textContent = 'QA Helper v4';
+    title.textContent = 'QA Form';
     const closeIcon = document.createElement('span');
     closeIcon.className = 'close-btn';
     closeIcon.textContent = '×';
@@ -103,25 +141,49 @@
     // Body
     const body = document.createElement('div');
     body.className = 'body';
-    const p1 = document.createElement('p');
-    p1.textContent = 'I work in Google Docs!';
-    p1.style.marginTop = '0';
-    const p2 = document.createElement('p');
-    p2.textContent = 'I am Trusted Types safe.';
-    p2.style.marginBottom = '0';
-    body.appendChild(p1);
-    body.appendChild(p2);
+
+    // Expandable Section
+    const expandable = document.createElement('div');
+    expandable.className = 'expandable';
+
+    const expHeader = document.createElement('div');
+    expHeader.className = 'expandable-header';
+    expHeader.textContent = '1. Greeting (Branding + Name)';
+    
+    const expContent = document.createElement('div');
+    expContent.className = 'expandable-content';
+
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'btn-group';
+    
+    const yesBtn = document.createElement('button');
+    yesBtn.textContent = 'Yes';
+    const noBtn = document.createElement('button');
+    noBtn.textContent = 'No';
+    
+    btnGroup.appendChild(yesBtn);
+    btnGroup.appendChild(noBtn);
+
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = 'Add details here...';
+
+    expContent.appendChild(btnGroup);
+    expContent.appendChild(textarea);
+    
+    expandable.appendChild(expHeader);
+    expandable.appendChild(expContent);
+    body.appendChild(expandable);
 
     // Footer
     const footer = document.createElement('div');
     footer.className = 'footer';
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = 'Cancel';
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'primary';
-    saveBtn.textContent = 'Save';
+    const generateBtn = document.createElement('button');
+    generateBtn.className = 'primary';
+    generateBtn.textContent = 'Generate';
     footer.appendChild(cancelBtn);
-    footer.appendChild(saveBtn);
+    footer.appendChild(generateBtn);
 
     // Assemble
     modal.appendChild(header);
@@ -133,7 +195,23 @@
     const remove = () => host.remove();
     closeIcon.onclick = remove;
     cancelBtn.onclick = remove;
-    saveBtn.onclick = () => alert('Action saved!');
+    generateBtn.onclick = () => alert('Report generated!');
+
+    // Toggle Logic for Buttons
+    yesBtn.onclick = () => {
+        yesBtn.className = 'active-yes';
+        noBtn.className = '';
+    };
+    noBtn.onclick = () => {
+        noBtn.className = 'active-no';
+        yesBtn.className = '';
+    };
+
+    // Toggle Logic for Expandable
+    expHeader.onclick = () => {
+        const isHidden = expContent.style.display === 'none';
+        expContent.style.display = isHidden ? 'block' : 'none';
+    };
 
     // 5. Drag Logic
     let isDragging = false;
