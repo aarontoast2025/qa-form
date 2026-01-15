@@ -83,6 +83,9 @@
             gap: 8px;
             margin-bottom: 10px;
         }
+        .btn-group button {
+            flex: 1;
+        }
         button {
             background: #fff;
             border: 1px solid #dadce0;
@@ -92,6 +95,10 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            margin-left: 8px;
+        }
+        .btn-group button {
+            margin-left: 0;
         }
         button:hover { background: #f8f9fa; border-color: #dadce0; }
         button.primary { background: #1a73e8; color: #fff; border: none; }
@@ -110,6 +117,16 @@
             outline: none;
         }
         textarea:focus { border-color: #1a73e8; }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .header-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
 
         .close-btn {
             cursor: pointer;
@@ -148,10 +165,22 @@
 
     const expHeader = document.createElement('div');
     expHeader.className = 'expandable-header';
-    expHeader.textContent = '1. Greeting (Branding + Name)';
+    
+    const expTitle = document.createElement('span');
+    expTitle.textContent = '1. Greeting (Branding + Name)';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'header-checkbox';
+    // Stop propagation so clicking checkbox doesn't toggle accordion
+    checkbox.onclick = (e) => e.stopPropagation();
+
+    expHeader.appendChild(expTitle);
+    expHeader.appendChild(checkbox);
     
     const expContent = document.createElement('div');
     expContent.className = 'expandable-content';
+    expContent.style.display = 'none'; // Collapse initially
 
     const btnGroup = document.createElement('div');
     btnGroup.className = 'btn-group';
@@ -165,7 +194,7 @@
     btnGroup.appendChild(noBtn);
 
     const textarea = document.createElement('textarea');
-    textarea.placeholder = 'Add details here...';
+    textarea.placeholder = 'Add context here...';
 
     expContent.appendChild(btnGroup);
     expContent.appendChild(textarea);
