@@ -226,7 +226,6 @@
     const remove = () => host.remove();
     closeIcon.onclick = remove;
     cancelBtn.onclick = remove;
-    generateBtn.onclick = () => alert('Report generated!');
 
     // Sync Logic
     const syncToPage = () => {
@@ -245,13 +244,24 @@
                 }
             });
 
-            // Update Textarea on page
+            // Update Textarea on page with React compatibility
             const pageTextarea = pageItem.querySelector('textarea');
             if (pageTextarea) {
-                pageTextarea.value = contextText;
+                // React overrides the value setter, so we need to call the native one
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+                if (nativeInputValueSetter) {
+                    nativeInputValueSetter.call(pageTextarea, contextText);
+                } else {
+                    pageTextarea.value = contextText;
+                }
+                
+                pageTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+                pageTextarea.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
     };
+
+    generateBtn.onclick = syncToPage;
 
     // Toggle Logic for Buttons
     yesBtn.onclick = () => {
