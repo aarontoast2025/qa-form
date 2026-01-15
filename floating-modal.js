@@ -113,7 +113,7 @@
             padding: 8px;
             font-size: 13px;
             resize: vertical;
-            min-height: 80px;
+            min-height: 44px;
             outline: none;
         }
         textarea:focus { border-color: #1a73e8; }
@@ -187,6 +187,8 @@
     
     const yesBtn = document.createElement('button');
     yesBtn.textContent = 'Yes';
+    yesBtn.className = 'active-yes'; // Initially selected
+
     const noBtn = document.createElement('button');
     noBtn.textContent = 'No';
     
@@ -226,15 +228,47 @@
     cancelBtn.onclick = remove;
     generateBtn.onclick = () => alert('Report generated!');
 
+    // Sync Logic
+    const syncToPage = () => {
+        const isYes = yesBtn.classList.contains('active-yes');
+        const statusText = isYes ? 'Yes' : 'No';
+        const contextText = textarea.value;
+
+        // Find the first item on the page
+        const pageItem = document.querySelector('.qa-question[data-idx="1"]');
+        if (pageItem) {
+            // Update Radio Buttons on page
+            const pageButtons = pageItem.querySelectorAll('button[role="radio"]');
+            pageButtons.forEach(btn => {
+                if (btn.textContent.trim() === statusText) {
+                    btn.click();
+                }
+            });
+
+            // Update Textarea on page
+            const pageTextarea = pageItem.querySelector('textarea');
+            if (pageTextarea) {
+                pageTextarea.value = contextText;
+            }
+        }
+    };
+
     // Toggle Logic for Buttons
     yesBtn.onclick = () => {
         yesBtn.className = 'active-yes';
         noBtn.className = '';
+        syncToPage();
     };
     noBtn.onclick = () => {
         noBtn.className = 'active-no';
         yesBtn.className = '';
+        syncToPage();
     };
+
+    textarea.oninput = syncToPage;
+
+    // Run initial sync
+    syncToPage();
 
     // Toggle Logic for Expandable
     expHeader.onclick = () => {
