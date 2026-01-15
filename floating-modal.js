@@ -159,51 +159,109 @@
     const body = document.createElement('div');
     body.className = 'body';
 
-    // Expandable Section
-    const expandable = document.createElement('div');
-    expandable.className = 'expandable';
+    // --- DATA CONFIGURATION ---
+    const QUESTIONS = [
+        { id: 1, label: '1. Greeting (Branding + Name)' },
+        { id: 2, label: '2. Confirm Customer Name' },
+        { id: 3, label: '3. Confirm Business Name' },
+        { id: 4, label: '4. Confirm Callback Number' },
+        { id: 5, label: '5. Appropriate Closing' }
+    ];
 
-    const expHeader = document.createElement('div');
-    expHeader.className = 'expandable-header';
-    
-    const expTitle = document.createElement('span');
-    expTitle.textContent = '1. Greeting (Branding + Name)';
-    
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.className = 'header-checkbox';
-    // Stop propagation so clicking checkbox doesn't toggle accordion
-    checkbox.onclick = (e) => e.stopPropagation();
+    // --- GENERIC SYNC LOGIC ---
+    const syncItem = (id, type, value) => {
+        const pageItem = document.querySelector(`.qa-question[data-idx="${id}"]`);
+        if (!pageItem) return;
 
-    expHeader.appendChild(expTitle);
-    expHeader.appendChild(checkbox);
-    
-    const expContent = document.createElement('div');
-    expContent.className = 'expandable-content';
-    expContent.style.display = 'none'; // Collapse initially
+        if (type === 'status') {
+            const pageButtons = pageItem.querySelectorAll('button[role="radio"]');
+            pageButtons.forEach(btn => {
+                if (btn.textContent.trim() === value) {
+                    btn.click();
+                }
+            });
+        } else if (type === 'text') {
+            const pageTextarea = pageItem.querySelector('textarea');
+            if (pageTextarea) {
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+                if (nativeInputValueSetter) {
+                    nativeInputValueSetter.call(pageTextarea, value);
+                } else {
+                    pageTextarea.value = value;
+                }
+                pageTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+                pageTextarea.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    };
 
-    const btnGroup = document.createElement('div');
-    btnGroup.className = 'btn-group';
-    
-    const yesBtn = document.createElement('button');
-    yesBtn.textContent = 'Yes';
-    yesBtn.className = 'active-yes'; // Initially selected
+    // --- BUILD LOOP ---
+    QUESTIONS.forEach(q => {
+        const expandable = document.createElement('div');
+        expandable.className = 'expandable';
 
-    const noBtn = document.createElement('button');
-    noBtn.textContent = 'No';
-    
-    btnGroup.appendChild(yesBtn);
-    btnGroup.appendChild(noBtn);
+        const expHeader = document.createElement('div');
+        expHeader.className = 'expandable-header';
+        
+        const expTitle = document.createElement('span');
+        expTitle.textContent = q.label;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'header-checkbox';
+        checkbox.onclick = (e) => e.stopPropagation();
 
-    const textarea = document.createElement('textarea');
-    textarea.placeholder = 'Add context here...';
+        expHeader.appendChild(expTitle);
+        expHeader.appendChild(checkbox);
+        
+        const expContent = document.createElement('div');
+        expContent.className = 'expandable-content';
+        expContent.style.display = 'none';
 
-    expContent.appendChild(btnGroup);
-    expContent.appendChild(textarea);
-    
-    expandable.appendChild(expHeader);
-    expandable.appendChild(expContent);
-    body.appendChild(expandable);
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        const yesBtn = document.createElement('button');
+        yesBtn.textContent = 'Yes';
+        yesBtn.className = 'active-yes';
+
+        const noBtn = document.createElement('button');
+        noBtn.textContent = 'No';
+        
+        btnGroup.appendChild(yesBtn);
+        btnGroup.appendChild(noBtn);
+
+        const textarea = document.createElement('textarea');
+        textarea.placeholder = 'Add context here...';
+
+        expContent.appendChild(btnGroup);
+        expContent.appendChild(textarea);
+        expandable.appendChild(expHeader);
+        expandable.appendChild(expContent);
+        body.appendChild(expandable);
+
+        // Events
+        yesBtn.onclick = () => {
+            yesBtn.className = 'active-yes';
+            noBtn.className = '';
+            syncItem(q.id, 'status', 'Yes');
+        };
+        noBtn.onclick = () => {
+            noBtn.className = 'active-no';
+            yesBtn.className = '';
+            syncItem(q.id, 'status', 'No');
+        };
+        textarea.oninput = () => {
+            syncItem(q.id, 'text', textarea.value);
+        };
+        expHeader.onclick = () => {
+            const isHidden = expContent.style.display === 'none';
+            expContent.style.display = isHidden ? 'block' : 'none';
+        };
+
+        // Initial Sync
+        setTimeout(() => syncItem(q.id, 'status', 'Yes'), 0);
+    });
 
     // Footer
     const footer = document.createElement('div');
@@ -213,6 +271,15 @@
     const generateBtn = document.createElement('button');
     generateBtn.className = 'primary';
     generateBtn.textContent = 'Generate';
+    
+    // Generate Button re-syncs all (safety net)
+    generateBtn.onclick = () => {
+        QUESTIONS.forEach(q => {
+             // In a real scenario we'd track state, but for now we rely on the realtime interactions
+             // This button can just remain as a placeholder or final "Commit" indicator
+        });
+    };
+
     footer.appendChild(cancelBtn);
     footer.appendChild(generateBtn);
 
@@ -226,65 +293,6 @@
     const remove = () => host.remove();
     closeIcon.onclick = remove;
     cancelBtn.onclick = remove;
-
-    // Sync Logic
-    const syncToPage = () => {
-        const isYes = yesBtn.classList.contains('active-yes');
-        const statusText = isYes ? 'Yes' : 'No';
-        const contextText = textarea.value;
-
-        // Find the first item on the page
-        const pageItem = document.querySelector('.qa-question[data-idx="1"]');
-        if (pageItem) {
-            // Update Radio Buttons on page
-            const pageButtons = pageItem.querySelectorAll('button[role="radio"]');
-            pageButtons.forEach(btn => {
-                if (btn.textContent.trim() === statusText) {
-                    btn.click();
-                }
-            });
-
-            // Update Textarea on page with React compatibility
-            const pageTextarea = pageItem.querySelector('textarea');
-            if (pageTextarea) {
-                // React overrides the value setter, so we need to call the native one
-                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
-                if (nativeInputValueSetter) {
-                    nativeInputValueSetter.call(pageTextarea, contextText);
-                } else {
-                    pageTextarea.value = contextText;
-                }
-                
-                pageTextarea.dispatchEvent(new Event('input', { bubbles: true }));
-                pageTextarea.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        }
-    };
-
-    generateBtn.onclick = syncToPage;
-
-    // Toggle Logic for Buttons
-    yesBtn.onclick = () => {
-        yesBtn.className = 'active-yes';
-        noBtn.className = '';
-        syncToPage();
-    };
-    noBtn.onclick = () => {
-        noBtn.className = 'active-no';
-        yesBtn.className = '';
-        syncToPage();
-    };
-
-    textarea.oninput = syncToPage;
-
-    // Run initial sync
-    syncToPage();
-
-    // Toggle Logic for Expandable
-    expHeader.onclick = () => {
-        const isHidden = expContent.style.display === 'none';
-        expContent.style.display = isHidden ? 'block' : 'none';
-    };
 
     // 5. Drag Logic
     let isDragging = false;
