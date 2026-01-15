@@ -1,232 +1,172 @@
-// This code uses Shadow DOM to protect styles and adds drag-and-drop capability
+// Version 4: Trusted Types Compatible
+// We avoid innerHTML entirely to work on Google Docs/Sheets
 
 (function() {
-    // 1. Check if it exists
-    const ID = 'qa-form-floating-host';
-    if (document.getElementById(ID)) {
-        alert('Modal is already open!');
-        return;
-    }
+    const ID = 'qa-helper-v4-trusted';
+    if (document.getElementById(ID)) return;
 
-    // 2. Create the Host Element (The shell)
+    // 1. Create Host
     const host = document.createElement('div');
     host.id = ID;
-    // We attach it to body, but the content lives in the "Shadow"
+    Object.assign(host.style, {
+        all: 'initial',
+        zIndex: 2147483647,
+        position: 'fixed',
+        top: 0,
+        left: 0
+    });
     document.body.appendChild(host);
 
-    // 3. Create Shadow DOM (The protective bubble)
     const shadow = host.attachShadow({ mode: 'open' });
 
-    // 4. Define Styles (Inside the bubble, these only affect our modal)
+    // 2. Add Styles (textContent is usually safe)
     const style = document.createElement('style');
     style.textContent = `
-        /* Reset all inheritance */
-        :host {
-            all: initial; 
-            z-index: 2147483647; /* Max z-index */
-        }
-        
-        .modal-container {
+        :host { all: initial; z-index: 2147483647; }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .modal {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 320px;
-            background-color: #ffffff;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            width: 300px;
+            background: #fff;
+            color: #333;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             border-radius: 12px;
-            border: 1px solid #e0e0e0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #333333;
+            border: 1px solid #ccc;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            animation: slideIn 0.3s ease-out;
+            font-size: 14px;
+            line-height: 1.5;
         }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Draggable Header */
-        .modal-header {
-            background-color: #f8f9fa;
+        .header {
+            background: #f1f3f4;
             padding: 12px 16px;
-            border-bottom: 1px solid #eee;
-            cursor: move; /* Shows drag cursor */
+            cursor: move;
+            border-bottom: 1px solid #dadce0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             user-select: none;
-        }
-
-        .modal-title {
-            margin: 0;
-            font-size: 16px;
             font-weight: 600;
             color: #202124;
         }
-
-        .modal-body {
-            padding: 16px;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #4a4a4a;
-        }
-
-        .modal-footer {
+        .body { padding: 16px; color: #3c4043; }
+        .footer {
             padding: 12px 16px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
             border-top: 1px solid #eee;
+            text-align: right;
+            background: #fff;
         }
-
-        /* Custom Button Styles - won't be affected by the page */
         button {
-            appearance: none;
             background: #fff;
             border: 1px solid #dadce0;
-            border-radius: 4px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
             color: #3c4043;
+            padding: 6px 16px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background 0.1s;
+            font-size: 14px;
+            margin-left: 8px;
+            font-weight: 500;
         }
-
-        button:hover {
-            background-color: #f1f3f4;
-            border-color: #dadce0;
-        }
-
-        button.primary {
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-        }
-
-        button.primary:hover {
-            background-color: #1557b0;
-        }
-
-        /* Close X button in header */
-        .close-icon {
+        button:hover { background: #f8f9fa; border-color: #dadce0; }
+        button.primary { background: #1a73e8; color: #fff; border: none; }
+        button.primary:hover { background: #1557b0; }
+        .close-btn {
             cursor: pointer;
-            color: #5f6368;
             font-size: 20px;
             line-height: 1;
             padding: 4px;
             border-radius: 50%;
+            color: #5f6368;
         }
-        .close-icon:hover {
-            background-color: rgba(0,0,0,0.05);
-            color: #202124;
-        }
+        .close-btn:hover { background: rgba(0,0,0,0.1); color: #202124; }
     `;
     shadow.appendChild(style);
 
-    // 5. Build the UI
-    const container = document.createElement('div');
-    container.className = 'modal-container';
-    
+    // 3. Build UI using createElement (Safe for Google Docs)
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
     // Header
     const header = document.createElement('div');
-    header.className = 'modal-header';
-    header.innerHTML = `
-        <h3 class="modal-title">QA Helper</h3>
-        <span class="close-icon">&times;</span>
-    `;
-    container.appendChild(header);
+    header.className = 'header';
+    const title = document.createElement('span');
+    title.textContent = 'QA Helper v4';
+    const closeIcon = document.createElement('span');
+    closeIcon.className = 'close-btn';
+    closeIcon.textContent = '×';
+    header.appendChild(title);
+    header.appendChild(closeIcon);
 
     // Body
     const body = document.createElement('div');
-    body.className = 'modal-body';
-    body.innerHTML = `
-        <p style="margin-top:0">Drag me by the header!</p>
-        <p style="margin-bottom:0">I am completely isolated from the page styles.</p>
-    `;
-    container.appendChild(body);
+    body.className = 'body';
+    const p1 = document.createElement('p');
+    p1.textContent = 'I work in Google Docs!';
+    p1.style.marginTop = '0';
+    const p2 = document.createElement('p');
+    p2.textContent = 'I am Trusted Types safe.';
+    p2.style.marginBottom = '0';
+    body.appendChild(p1);
+    body.appendChild(p2);
 
     // Footer
     const footer = document.createElement('div');
-    footer.className = 'modal-footer';
-    
+    footer.className = 'footer';
     const cancelBtn = document.createElement('button');
-    cancelBtn.innerText = 'Cancel';
-    cancelBtn.onclick = removeModal;
-    
-    const okBtn = document.createElement('button');
-    okBtn.className = 'primary';
-    okBtn.innerText = 'Action';
-    okBtn.onclick = () => alert('Clicked Action!');
-
+    cancelBtn.textContent = 'Cancel';
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'primary';
+    saveBtn.textContent = 'Save';
     footer.appendChild(cancelBtn);
-    footer.appendChild(okBtn);
-    container.appendChild(footer);
+    footer.appendChild(saveBtn);
 
-    shadow.appendChild(container);
+    // Assemble
+    modal.appendChild(header);
+    modal.appendChild(body);
+    modal.appendChild(footer);
+    shadow.appendChild(modal);
 
-    // 6. Logic functions
+    // 4. Logic
+    const remove = () => host.remove();
+    closeIcon.onclick = remove;
+    cancelBtn.onclick = remove;
+    saveBtn.onclick = () => alert('Action saved!');
 
-    function removeModal() {
-        host.remove();
-    }
-
-    // Bind the close icon
-    header.querySelector('.close-icon').onclick = removeModal;
-
-    // 7. Drag Logic
+    // 5. Drag Logic
     let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
+    let startX, startY, initialLeft, initialTop;
 
-    header.addEventListener('mousedown', dragStart);
-
-    function dragStart(e) {
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-
-        if (e.target.closest('.close-icon')) return; // Don't drag if clicking close
-
+    header.addEventListener('mousedown', e => {
         isDragging = true;
+        const rect = modal.getBoundingClientRect();
         
-        // Listen to document for move so we don't lose it if mouse moves fast
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
-    }
+        // Lock to current position to prepare for drag
+        modal.style.bottom = 'auto';
+        modal.style.right = 'auto';
+        modal.style.left = rect.left + 'px';
+        modal.style.top = rect.top + 'px';
 
-    function drag(e) {
-        if (isDragging) {
-            e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
 
-            xOffset = currentX;
-            yOffset = currentY;
+        e.preventDefault();
+    });
 
-            setTranslate(currentX, currentY, container);
-        }
-    }
+    document.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        modal.style.left = (initialLeft + dx) + 'px';
+        modal.style.top = (initialTop + dy) + 'px';
+    });
 
-    function setTranslate(xPos, yPos, el) {
-        // We use transform for performance
-        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-        // Since we are overriding the slideIn animation transform, we might need to handle that,
-        // but for now, simple translation works after animation.
-    }
-
-    function dragEnd(e) {
-        initialX = currentX;
-        initialY = currentY;
+    document.addEventListener('mouseup', () => {
         isDragging = false;
-        document.removeEventListener('mousemove', drag);
-        document.removeEventListener('mouseup', dragEnd);
-    }
+    });
 
 })();
