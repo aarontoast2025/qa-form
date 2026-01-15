@@ -168,6 +168,9 @@
         { id: 5, label: '5. Appropriate Closing' }
     ];
 
+    // Registry to store sync triggers for the Generate button
+    const syncRegistry = [];
+
     // --- GENERIC SYNC LOGIC ---
     const syncItem = (id, type, value) => {
         const pageItem = document.querySelector(`.qa-question[data-idx="${id}"]`);
@@ -177,6 +180,9 @@
             const pageButtons = pageItem.querySelectorAll('button[role="radio"]');
             pageButtons.forEach(btn => {
                 if (btn.textContent.trim() === value) {
+                    // Trigger multiple events for framework compatibility
+                    btn.dispatchEvent(new Event('mousedown', { bubbles: true }));
+                    btn.dispatchEvent(new Event('mouseup', { bubbles: true }));
                     btn.click();
                 }
             });
@@ -198,6 +204,7 @@
     // --- BUILD LOOP ---
     QUESTIONS.forEach(q => {
         const expandable = document.createElement('div');
+        // ... (rest of creation code stays similar, just need to hook into syncRegistry)
         expandable.className = 'expandable';
 
         const expHeader = document.createElement('div');
@@ -240,27 +247,37 @@
         expandable.appendChild(expContent);
         body.appendChild(expandable);
 
-        // Events
+        // Define the sync action for this specific item
+        const performSync = () => {
+             const isYes = yesBtn.classList.contains('active-yes');
+             const status = isYes ? 'Yes' : 'No';
+             syncItem(q.id, 'status', status);
+             syncItem(q.id, 'text', textarea.value);
+        };
+
+        // Register it
+        syncRegistry.push(performSync);
+
+        // Event Listeners calling the local performSync
         yesBtn.onclick = () => {
             yesBtn.className = 'active-yes';
             noBtn.className = '';
-            syncItem(q.id, 'status', 'Yes');
+            performSync();
         };
         noBtn.onclick = () => {
             noBtn.className = 'active-no';
             yesBtn.className = '';
-            syncItem(q.id, 'status', 'No');
+            performSync();
         };
-        textarea.oninput = () => {
-            syncItem(q.id, 'text', textarea.value);
-        };
+        textarea.oninput = performSync;
+
         expHeader.onclick = () => {
             const isHidden = expContent.style.display === 'none';
             expContent.style.display = isHidden ? 'block' : 'none';
         };
 
-        // Initial Sync
-        setTimeout(() => syncItem(q.id, 'status', 'Yes'), 0);
+        // Initial Sync (queued)
+        setTimeout(performSync, 0);
     });
 
     // Footer
@@ -272,12 +289,9 @@
     generateBtn.className = 'primary';
     generateBtn.textContent = 'Generate';
     
-    // Generate Button re-syncs all (safety net)
+    // Generate Button now executes all registered syncs
     generateBtn.onclick = () => {
-        QUESTIONS.forEach(q => {
-             // In a real scenario we'd track state, but for now we rely on the realtime interactions
-             // This button can just remain as a placeholder or final "Commit" indicator
-        });
+        syncRegistry.forEach(fn => fn());
     };
 
     footer.appendChild(cancelBtn);
